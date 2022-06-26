@@ -1,13 +1,17 @@
-// Next.js API route support: https://nextjs.org/docs/api-routes/introduction
-import type { NextApiRequest, NextApiResponse } from 'next'
+import type { NextApiRequest, NextApiResponse } from "next"
+import nc from "next-connect"
+import { realEstate } from "../../utils/data"
+import RealEstate from "../../models/RealEstate"
+import db from "../../utils/db"
 
-type Data = {
-  name: string
-}
+const handler = nc()
 
-export default function handler(
-  req: NextApiRequest,
-  res: NextApiResponse<Data>
-) {
-  res.status(200).json({ name: 'John Doe' })
-}
+handler.get(async (req: NextApiRequest, res: NextApiResponse) => {
+  await db.connect()
+  await RealEstate.deleteMany()
+  await RealEstate.insertMany(realEstate)
+  await db.disconnect()
+  return res.send({ massage: "already seeded" })
+})
+
+export default handler
